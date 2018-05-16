@@ -1,12 +1,16 @@
 package com.renjie.config;
 
+import com.renjie.entity.SysPermission;
 import com.renjie.entity.SysRole;
 import com.renjie.entity.UserInfo;
 import com.renjie.service.IUserInfoService;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -18,14 +22,16 @@ public class MyShiroRealm extends AuthorizingRealm{
     private IUserInfoService userInfoService;
 
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo();
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         UserInfo userInfo = (UserInfo)principals.getPrimaryPrincipal();
         for (SysRole role : userInfo.getRoleList()) {
-            //authenticationInfo.
+            authorizationInfo.addRole(role.getRole());
+            for (SysPermission p : role.getPermissions()) {
+                authorizationInfo.addStringPermission(p.getPermission());
+            }
         }
 
-
-        return null;
+        return authorizationInfo;
     }
 
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
@@ -38,6 +44,12 @@ public class MyShiroRealm extends AuthorizingRealm{
         if (userInfo.getState()==1){
             throw new LockedAccountException();
         }
-        return null;
+        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
+                userInfo,
+                userInfo.getPassword(),
+                ByteSource.Util.bytes(userInfo.getUsername()+ new SecureRandomNumberGenerator().nextBytes().toHex()),
+                getName()
+        );
+        return authenticationInfo;
     }
 }
