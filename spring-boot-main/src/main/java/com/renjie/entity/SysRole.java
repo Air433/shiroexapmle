@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by Air on 2018/5/13.
  */
-public class SysRole implements Serializable {
+public class SysRole  implements Serializable {
 
     private String role;
 

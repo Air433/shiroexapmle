@@ -44,11 +44,16 @@ public class MyShiroRealm extends AuthorizingRealm{
         if (userInfo.getState()==1){
             throw new LockedAccountException();
         }
+//        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
+//                userInfo,
+//                userInfo.getPassword(),
+//                ByteSource.Util.bytes(userInfo.getUsername()+ new SecureRandomNumberGenerator().nextBytes().toHex()),
+//                getName()
+//        );
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
-                userInfo,
-                userInfo.getPassword(),
-                ByteSource.Util.bytes(userInfo.getUsername()+ new SecureRandomNumberGenerator().nextBytes().toHex()),
-                getName()
+            userInfo,
+            userInfo.getPassword(),
+            getName()
         );
         return authenticationInfo;
     }
